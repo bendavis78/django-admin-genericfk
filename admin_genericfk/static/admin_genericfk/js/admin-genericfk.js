@@ -1,11 +1,15 @@
 (function($){
   $(document).ready(function(){
-    var changeType = function() {
-      console.log('changed');
-      var $select = $(this);
+    var update = function(select, reset) {
+      var $select = $(select);
       var $lookup = $select.siblings('.vRelatedLookup');
       var $link = $lookup.find('a.related-lookup');
-      var $selectedOption = $(this.selectedOptions[0]);
+      var $input = $lookup.find('input.vForeignKeyRawIdAdminField');
+      var $selectedOption = $(select.selectedOptions[0]);
+      if (reset) {
+        console.log('reset');
+        $input.attr('value', '').trigger('change');
+      }
       if ($select.val() !== '') {
         $lookup.show();
         $link.attr('href', $selectedOption.attr('data-url'));
@@ -15,6 +19,9 @@
       }
     };
     var $selects = $('select.vGenericForeignKeyTypeSelect');
-    $selects.on('change', changeType).trigger('change');
+    $selects.on('change', function(){
+      update(this, true);
+    });
+    $selects.each(function(){update(this, false);});
   });
 })(django.jQuery);

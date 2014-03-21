@@ -55,7 +55,7 @@ class GenericForeignKeyRawIdInput(forms.TextInput):
             .format(static('admin/img/selector-search.gif'), _('Lookup'))
         )
         output = [super(GenericForeignKeyRawIdInput, self).render(
-            name, value, attrs)] + extra
+            name, force_text(value.pk), attrs)] + extra
 
         if value:
             output.append(self.label_for_value(value))
@@ -98,7 +98,7 @@ class GenericForeignKeyRawIdSelect(forms.Select):
             option_value = ''
             option_label = '-- Select type --'
 
-        if option_value in selected_choices:
+        if force_text(option_value) in selected_choices:
             selected_html = mark_safe(' selected="selected"')
 
         return format_html('<option value="{0}"{1}{2}>{3}</option>',
@@ -120,7 +120,7 @@ class GenericForeignKeyRawIdWidget(forms.MultiWidget):
     def decompress(self, value):
         if value:
             ct = ContentType.objects.get_for_model(value)
-            return (ct, value)
+            return (force_text(ct.pk), value)
         return (None, None)
 
     def format_output(self, rendered_widgets):
