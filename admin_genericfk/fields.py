@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 
 class GenericForeignKeyField(forms.MultiValueField):
@@ -14,3 +15,12 @@ class GenericForeignKeyField(forms.MultiValueField):
     def compress(self, data):
         ct, pk = data
         return ct.get_object_for_this_type(pk=pk)
+
+    def prepare_value(self, data):
+        if isinstance(data, list):
+            if not all(data):
+                return None
+            ct = ContentType.objects.get(pk=data[0])
+            obj = ct.get_object_for_this_type(pk=data[1])
+            return obj
+        return data

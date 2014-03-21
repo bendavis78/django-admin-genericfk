@@ -35,6 +35,10 @@ class GenericForeignKeyRawIdInput(forms.TextInput):
         super(GenericForeignKeyRawIdInput, self).__init__(attrs)
 
     def render(self, name, value, attrs=None):
+        # use the actual object from here on
+        attrs = attrs.copy()
+        value = attrs.pop('compressed_value')
+
         if attrs is None:
             attrs = {}
 
@@ -54,8 +58,9 @@ class GenericForeignKeyRawIdInput(forms.TextInput):
             '<img src="{0}" width="16" height="16" alt="{0}" /></a>'
             .format(static('admin/img/selector-search.gif'), _('Lookup'))
         )
+        pk = value is not None and value.pk or None
         output = [super(GenericForeignKeyRawIdInput, self).render(
-            name, force_text(value.pk), attrs)] + extra
+            name, force_text(pk), attrs)] + extra
 
         if value:
             output.append(self.label_for_value(value))
@@ -85,6 +90,12 @@ class GenericForeignKeyRawIdSelect(forms.Select):
             attrs['class'] = 'vGenericForeignKeyTypeSelect'
 
         super(GenericForeignKeyRawIdSelect, self).__init__(attrs, choices)
+
+    def render(self, name, value, attrs):
+        attrs = attrs.copy()
+        attrs.pop('compressed_value')
+        return super(GenericForeignKeyRawIdSelect, self).render(
+            name, value, attrs)
 
     def render_option(self, selected_choices, option_value, option_label):
         selected_html = ''
@@ -117,10 +128,19 @@ class GenericForeignKeyRawIdWidget(forms.MultiWidget):
         widgets = (select, input)
         super(GenericForeignKeyRawIdWidget, self).__init__(widgets, attrs)
 
+    def render(self, name, value, attrs=None):
+        if isinstance(value, list):
+            import ipdb; ipdb.set_trace()
+        attrs['compressed_value'] = value
+        return super(GenericForeignKeyRawIdWidget, self).render(
+            name, value, attrs)
+
     def decompress(self, value):
+        if isinstance(value, (tuple, list)):
+            return value
         if value:
             ct = ContentType.objects.get_for_model(value)
-            return (force_text(ct.pk), value)
+            return (force_text(ct.pk), force_text(value.pk))
         return (None, None)
 
     def format_output(self, rendered_widgets):
