@@ -32,7 +32,8 @@ class GenericFKMixin(object):
 
         for name in self.generic_raw_id_fields:
             db_field = getattr(self.model, name)
-            attrs[name] = GenericForeignKeyField(db_field)
+            required = not db_field.blank
+            attrs[name] = GenericForeignKeyField(db_field, required=required)
 
         return type(form)(class_name, bases, attrs)
 
