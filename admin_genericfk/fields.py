@@ -13,6 +13,8 @@ class GenericForeignKeyField(forms.MultiValueField):
             fields=fields, *args, **kwargs)
 
     def compress(self, data):
+        if not data:
+            return None
         ct, pk = data
         return ct.get_object_for_this_type(pk=pk)
 
