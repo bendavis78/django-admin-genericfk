@@ -58,7 +58,7 @@ class GenericForeignKeyRawIdInput(forms.TextInput):
             '<img src="{0}" width="16" height="16" alt="{0}" /></a>'
             .format(static('admin/img/selector-search.gif'), _('Lookup'))
         )
-        pk = value is not None and value.pk or None
+        pk = value is not None and value.pk or ''
         output = [super(GenericForeignKeyRawIdInput, self).render(
             name, force_text(pk), attrs)] + extra
 
@@ -129,8 +129,6 @@ class GenericForeignKeyRawIdWidget(forms.MultiWidget):
         super(GenericForeignKeyRawIdWidget, self).__init__(widgets, attrs)
 
     def render(self, name, value, attrs=None):
-        if isinstance(value, list):
-            import ipdb; ipdb.set_trace()
         attrs['compressed_value'] = value
         return super(GenericForeignKeyRawIdWidget, self).render(
             name, value, attrs)
