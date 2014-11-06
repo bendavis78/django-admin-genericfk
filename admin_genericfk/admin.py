@@ -55,3 +55,9 @@ class GenericFKMixin(object):
             value = form.cleaned_data.get(name)
             setattr(obj, name, value)
         super(GenericFKMixin, self).save_model(request, obj, form, change)
+
+    def to_field_allowed(self, request, to_field):
+        # This method causes an exception in ModelAdmin since it calls
+        # get_related_field() on GenericRel. This extra check is not really
+        # necessary unless you're doing something strange.
+        return True
